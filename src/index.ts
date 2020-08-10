@@ -16,7 +16,7 @@ const main = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   // puimekster
-  await page.goto('https://www.instagram.com/ngoctrinh89', { waitUntil: 'networkidle2' });
+  await page.goto('https://www.instagram.com/puimekster', { waitUntil: 'networkidle2' });
 
   // username
   await page.waitForSelector("[name='username']");
@@ -43,13 +43,13 @@ const main = async () => {
     previousHeight = await page.evaluate('document.body.scrollHeight') as number;
     await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
     await page.waitFor(3000); // depend on the internet.
-    urls = [
+    urls = uniq([
       ...urls,
       ...await page.evaluate(() => Array.from(document.querySelectorAll('img')).map((item: HTMLImageElement) => item.src).filter((item) => item !== '')),
-    ];
+    ]);
   }
 
-  await Promise.all(uniq(urls).map(async (url) => {
+  await Promise.all(urls.map(async (url) => {
     await downloadImage(url);
   }));
 
