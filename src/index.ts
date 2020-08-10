@@ -16,7 +16,7 @@ const main = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   // puimekster
-  await page.goto('https://www.instagram.com/sunihalinh', { waitUntil: 'networkidle2' });
+  await page.goto('https://www.instagram.com/ngoctrinh89', { waitUntil: 'networkidle2' });
 
   // username
   await page.waitForSelector("[name='username']");
