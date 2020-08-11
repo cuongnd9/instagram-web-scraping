@@ -1,11 +1,11 @@
 import puppeteer from 'puppeteer';
-import { logger } from 'juno-js';
-import { diana } from 'diana-js';
-import { createWriteStream } from 'fs';
-import { resolve } from 'path';
-import { config } from 'dotenv';
+import {logger} from 'juno-js';
+import {diana} from 'diana-js';
+import {createWriteStream, writeFileSync} from 'fs';
+import {resolve} from 'path';
+import {config} from 'dotenv';
 import axios from 'axios';
-import { uniq } from 'lodash';
+import {uniq} from 'lodash';
 
 config();
 
@@ -15,8 +15,7 @@ const INSTAGRAM_PWD = process.env.INSTAGRAM_PWD || 'password';
 const main = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  // puimekster
-  await page.goto('https://www.instagram.com/puimekster', { waitUntil: 'networkidle2' });
+  await page.goto('https://www.instagram.com/puimekster', {waitUntil: 'networkidle2'});
 
   // username
   await page.waitForSelector("[name='username']");
@@ -29,11 +28,12 @@ const main = async () => {
   await page.click('button[type=submit]');
   await page.waitForNavigation();
 
-  await page.evaluate(() => Array.from(document.querySelectorAll('button')).forEach((item) => {
-    if (item.innerText = 'Save Info') {
-      item.click();
-    }
-  }));
+  await page.evaluate(() =>
+    Array.from(document.querySelectorAll('button')).forEach((item) => {
+      if (item.innerText = 'Save Info') {
+        item.click();
+      }
+    }));
   await page.waitForNavigation();
 
   let urls: string[] = [];
@@ -45,9 +45,13 @@ const main = async () => {
     await page.waitFor(3000); // depend on the internet.
     urls = uniq([
       ...urls,
-      ...await page.evaluate(() => Array.from(document.querySelectorAll('img')).map((item: HTMLImageElement) => item.src).filter((item) => item !== '')),
+      ...await page.evaluate(() =>
+        Array.from(document.querySelectorAll('img')).map((item: HTMLImageElement) =>
+          item.src).filter((item) => item !== '')),
     ]);
   }
+
+  writeFileSync(`data/${Date.now()}${diana()}.json`, JSON.stringify(urls), {encoding: 'utf8'});
 
   await Promise.all(urls.map(async (url) => {
     await downloadImage(url);
@@ -59,7 +63,7 @@ const main = async () => {
 async function downloadImage(url: string) {
   logger.info('🧰 downloading image...', url);
 
-  const path: string = resolve(__dirname, '..', 'assets', `${diana()}.png`);
+  const path: string = resolve(__dirname, '..', 'images', `${diana()}.png`);
   const writer = createWriteStream(path);
 
   const response = await axios({
